@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# set correct timezone
+unalias cp
+cp -f /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # first check to see if alf_data has keystore directory, this is a crude way
 # to determine if the mounted location has data or not, then we can bootstrap
 # if it is the first time this is run
