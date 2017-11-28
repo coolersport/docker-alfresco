@@ -23,37 +23,42 @@ RUN yum update -y && \
                    wget && \
     yum clean all && rm -rf /tmp/* /var/tmp/* /var/cache/yum/*
 
-# install alfresco
-COPY assets/install_alfresco.sh /tmp/install_alfresco.sh
-RUN /tmp/install_alfresco.sh && \
-    rm -rf /tmp/* /var/tmp/*
-# install mysql connector for alfresco
-COPY assets/install_mysql_connector.sh /tmp/install_mysql_connector.sh
-RUN /tmp/install_mysql_connector.sh && \
-    rm -rf /tmp/* /var/tmp/*
-# this is for LDAP configuration
-RUN mkdir -p /alfresco/tomcat/shared/classes/alfresco/extension/subsystems/Authentication/ldap/ldap1/
-RUN mkdir -p /alfresco/tomcat/shared/classes/alfresco/extension/subsystems/Authentication/ldap-ad/ldap1/
-COPY assets/ldap-authentication.properties /alfresco/tomcat/shared/classes/alfresco/extension/subsystems/Authentication/ldap/ldap1/ldap-authentication.properties
-COPY assets/ldap-ad-authentication.properties /alfresco/tomcat/shared/classes/alfresco/extension/subsystems/Authentication/ldap-ad/ldap1/ldap-ad-authentication.properties
-
-# backup alf_data so that it can be used in init.sh if necessary
 ENV ALF_DATA /alfresco/alf_data
-RUN rsync -av $ALF_DATA /alf_data.install/
+ENV TZ Australia/Melbourne
 
-# adding path file used to disable tomcat CSRF
-COPY assets/disable_tomcat_CSRF.patch /alfresco/disable_tomcat_CSRF.patch
+#debug,info,warn,error,critical
+ENV LOG_LEVEL warn
+ENV BOOTSTRAP_DELAY 30
+ENV BOOTSTRAP_USER apiUser
+ENV BOOTSTRAP_PASSWORD somePassword
+ENV ADMIN_PASSWORD adminPassw0rd
 
-# install scripts
-COPY assets/init.sh /alfresco/init.sh
-COPY assets/supervisord.conf /etc/supervisord.conf
+COPY rootfs /
 
-RUN mkdir -p /alfresco/tomcat/webapps/ROOT
-COPY assets/index.jsp /alfresco/tomcat/webapps/ROOT/
+RUN chmod u+x /tmp/*.sh && \
+# install alfresco
+    /tmp/install_alfresco.sh && \
+# install mysql connector for alfresco
+    /tmp/install_mysql_connector.sh && \
+# this is for LDAP configuration
+    unalias cp && \
+    cp -r /alfresco-assets/* /alfresco/ && \
+# backup alf_data so that it can be used in init.sh if necessary
+    rsync -av $ALF_DATA /alf_data.install/ && \
+# prepare to run as non-root user
+    groupadd alfresco && useradd -g alfresco -s /bin/sh alfresco && \
+    chown -R alfresco:alfresco /alfresco && \
+    chown -R alfresco:alfresco /alf_data.install && \
+# additional scripts
+    chmod +x /*.sh && \
+# clean up
+    rm -rf /tmp/* /var/tmp/* /alfresco-assets
 
 VOLUME /alfresco/alf_data
 VOLUME /alfresco/tomcat/logs
 VOLUME /content
 
 EXPOSE 21 137 138 139 445 7070 8009 8080
-CMD /usr/bin/supervisord -c /etc/supervisord.conf -n
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["sh", "-c", "/usr/bin/supervisord -c /etc/supervisord.conf -n -e ${LOG_LEVEL}"]
