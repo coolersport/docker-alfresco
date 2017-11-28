@@ -221,5 +221,10 @@ if [ "$TOMCAT_CSRF_ENABLED" == "false" ] && [ -f "$TOMCAT_CSRF_PATCH" ] ;then
   [ $? == 0 ] && mv "$TOMCAT_CSRF_PATCH" "${TOMCAT_CSRF_PATCH}.done"
 fi
 
+if [ -f /callback/prestart.sh ]; then
+  chmod u+x /callback/prestart.sh
+  /callback/prestart.sh
+fi
+
 # start alfresco
 $ALF_HOME/tomcat/scripts/ctl.sh start
