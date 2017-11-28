@@ -96,93 +96,95 @@ TOMCAT_CSRF_PATCH="${ALF_HOME}/disable_tomcat_CSRF.patch"
 TOMCAT_CSRF_ENABLED=${TOMCAT_CSRF_ENABLED:-true}
 
 function cfg_replace_option {
-  grep "$1" "$3" > /dev/null
+  grep "$1" "$2" > /dev/null
   if [ $? -eq 0 ]; then
     # replace option
-    echo "replacing option  $1=$2  in  $3"
-    sed -i "s#^\($1\s*=\s*\).*\$#\1$2#" $3
+    echo "replacing option  $1=$3  in  $2"
+    sed -i "s#^\($1\s*=\s*\).*\$#\1$3#" $2
     if (( $? )); then
       echo "cfg_replace_option failed"
       exit 1
     fi
   else
     # add option if it does not exist
-    echo "adding option  $1=$2  in  $3"
-    echo "$1=$2" >> $3
+    echo "adding option  $1=$3  in  $2"
+    echo "$1=$3" >> $2
   fi
 }
 
 function tweak_alfresco {
   ALFRESCO_GLOBAL_PROPERTIES=$CATALINA_HOME/shared/classes/alfresco-global.properties
 
+  echo -e "\n" >> $ALFRESCO_GLOBAL_PROPERTIES # ensure new line at end of file
+
   #alfresco host+proto+port
-  cfg_replace_option alfresco.host $ALFRESCO_HOSTNAME $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option alfresco.protocol $ALFRESCO_PROTOCOL $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option alfresco.port $ALFRESCO_PORT $ALFRESCO_GLOBAL_PROPERTIES
+  cfg_replace_option alfresco.host $ALFRESCO_GLOBAL_PROPERTIES $ALFRESCO_HOSTNAME
+  cfg_replace_option alfresco.protocol $ALFRESCO_GLOBAL_PROPERTIES $ALFRESCO_PROTOCOL
+  cfg_replace_option alfresco.port $ALFRESCO_GLOBAL_PROPERTIES $ALFRESCO_PORT
 
   #share host+proto+port
-  cfg_replace_option share.host $SHARE_HOSTNAME $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option share.protocol $SHARE_PROTOCOL $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option share.port $SHARE_PORT $ALFRESCO_GLOBAL_PROPERTIES
+  cfg_replace_option share.host $ALFRESCO_GLOBAL_PROPERTIES $SHARE_HOSTNAME
+  cfg_replace_option share.protocol $ALFRESCO_GLOBAL_PROPERTIES $SHARE_PROTOCOL
+  cfg_replace_option share.port $ALFRESCO_GLOBAL_PROPERTIES $SHARE_PORT
 
   #set server mode
-  cfg_replace_option system.serverMode $SYSTEM_SERVERMODE $ALFRESCO_GLOBAL_PROPERTIES
+  cfg_replace_option system.serverMode $ALFRESCO_GLOBAL_PROPERTIES $SYSTEM_SERVERMODE
 
   #db.schema.update=true
-  cfg_replace_option db.driver $DB_DRIVER $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option db.username $DB_USERNAME $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option db.password $DB_PASSWORD $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option db.name $DB_NAME $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option db.url jdbc:${DB_KIND,,}://${DB_HOST}:${DB_PORT}/${DB_NAME}${DB_CONN_PARAMS} $ALFRESCO_GLOBAL_PROPERTIES
+  cfg_replace_option db.driver $ALFRESCO_GLOBAL_PROPERTIES $DB_DRIVER
+  cfg_replace_option db.username $ALFRESCO_GLOBAL_PROPERTIES $DB_USERNAME
+  cfg_replace_option db.password $ALFRESCO_GLOBAL_PROPERTIES $DB_PASSWORD
+  cfg_replace_option db.name $ALFRESCO_GLOBAL_PROPERTIES $DB_NAME
+  cfg_replace_option db.url $ALFRESCO_GLOBAL_PROPERTIES jdbc:${DB_KIND,,}://${DB_HOST}:${DB_PORT}/${DB_NAME}${DB_CONN_PARAMS}
 
-  cfg_replace_option mail.host $MAIL_HOST $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option mail.port $MAIL_PORT $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option mail.username $MAIL_USERNAME $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option mail.password $MAIL_PASSWORD $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option mail.from.default $MAIL_FROM_DEFAULT $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option mail.protocol $MAIL_PROTOCOL $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option mail.smtp.auth $MAIL_SMTP_AUTH $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option mail.smtp.starttls.enable $MAIL_SMTP_STARTTLS_ENABLE $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option mail.smtps.auth $MAIL_SMTPS_AUTH $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option mail.smtps.starttls.enable $MAIL_SMTPS_STARTTLS_ENABLE $ALFRESCO_GLOBAL_PROPERTIES
+  cfg_replace_option mail.host $ALFRESCO_GLOBAL_PROPERTIES $MAIL_HOST
+  cfg_replace_option mail.port $ALFRESCO_GLOBAL_PROPERTIES $MAIL_PORT
+  cfg_replace_option mail.username $ALFRESCO_GLOBAL_PROPERTIES $MAIL_USERNAME
+  cfg_replace_option mail.password $ALFRESCO_GLOBAL_PROPERTIES $MAIL_PASSWORD
+  cfg_replace_option mail.from.default $ALFRESCO_GLOBAL_PROPERTIES $MAIL_FROM_DEFAULT
+  cfg_replace_option mail.protocol $ALFRESCO_GLOBAL_PROPERTIES $MAIL_PROTOCOL
+  cfg_replace_option mail.smtp.auth $ALFRESCO_GLOBAL_PROPERTIES $MAIL_SMTP_AUTH
+  cfg_replace_option mail.smtp.starttls.enable $ALFRESCO_GLOBAL_PROPERTIES $MAIL_SMTP_STARTTLS_ENABLE
+  cfg_replace_option mail.smtps.auth $ALFRESCO_GLOBAL_PROPERTIES $MAIL_SMTPS_AUTH
+  cfg_replace_option mail.smtps.starttls.enable $ALFRESCO_GLOBAL_PROPERTIES $MAIL_SMTPS_STARTTLS_ENABLE
 
-  cfg_replace_option ftp.port $FTP_PORT $ALFRESCO_GLOBAL_PROPERTIES
+  cfg_replace_option ftp.port $ALFRESCO_GLOBAL_PROPERTIES $FTP_PORT
 
   # @see https://forums.alfresco.com/en/viewtopic.php?f=8&t=20893
   # CIFS works, but you have to login as a native Alfresco account, like admin
   # because CIFS does not work with LDAP authentication
-  cfg_replace_option cifs.enabled $CIFS_ENABLED $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option cifs.Server.Name $CIFS_SERVER_NAME $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option cifs.domain $CIFS_DOMAIN $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option cifs.hostannounce "true" $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option cifs.broadcast "0.0.0.255" $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option cifs.ipv6.enabled "false" $ALFRESCO_GLOBAL_PROPERTIES
+  cfg_replace_option cifs.enabled $ALFRESCO_GLOBAL_PROPERTIES $CIFS_ENABLED
+  cfg_replace_option cifs.Server.Name $ALFRESCO_GLOBAL_PROPERTIES $CIFS_SERVER_NAME
+  cfg_replace_option cifs.domain $ALFRESCO_GLOBAL_PROPERTIES $CIFS_DOMAIN
+  cfg_replace_option cifs.hostannounce $ALFRESCO_GLOBAL_PROPERTIES "true"
+  cfg_replace_option cifs.broadcast $ALFRESCO_GLOBAL_PROPERTIES "0.0.0.255"
+  cfg_replace_option cifs.ipv6.enabled $ALFRESCO_GLOBAL_PROPERTIES "false"
 
-  cfg_replace_option nfs.enabled $NFS_ENABLED $ALFRESCO_GLOBAL_PROPERTIES
+  cfg_replace_option nfs.enabled $ALFRESCO_GLOBAL_PROPERTIES $NFS_ENABLED
 
   # authentication
   if [ "$LDAP_ENABLED" == "true" ]; then
-    cfg_replace_option authentication.chain "alfrescoNtlm1:alfrescoNtlm,ldap1:${LDAP_KIND}" $ALFRESCO_GLOBAL_PROPERTIES
+    cfg_replace_option authentication.chain $ALFRESCO_GLOBAL_PROPERTIES "alfrescoNtlm1:alfrescoNtlm,ldap1:${LDAP_KIND}"
 
     # now make substitutions in the LDAP config file
     LDAP_CONFIG_FILE=$CATALINA_HOME/shared/classes/alfresco/extension/subsystems/Authentication/${LDAP_KIND}/ldap1/${LDAP_KIND}-authentication.properties
 
-    cfg_replace_option "ldap.authentication.userNameFormat" "$LDAP_AUTH_USERNAMEFORMAT" "$LDAP_CONFIG_FILE"
-    cfg_replace_option ldap.authentication.java.naming.provider.url $LDAP_URL $LDAP_CONFIG_FILE
-    cfg_replace_option ldap.authentication.defaultAdministratorUserNames $LDAP_DEFAULT_ADMINS $LDAP_CONFIG_FILE
-    cfg_replace_option ldap.synchronization.java.naming.security.principal $LDAP_SECURITY_PRINCIPAL $LDAP_CONFIG_FILE
-    cfg_replace_option ldap.synchronization.java.naming.security.credentials $LDAP_SECURITY_CREDENTIALS $LDAP_CONFIG_FILE
-    cfg_replace_option ldap.synchronization.groupSearchBase $LDAP_GROUP_SEARCHBASE $LDAP_CONFIG_FILE
-    cfg_replace_option ldap.synchronization.userSearchBase $LDAP_USER_SEARCHBASE $LDAP_CONFIG_FILE
-    cfg_replace_option ldap.synchronization.userIdAttributeName $LDAP_USER_ATTRIBUTENAME $LDAP_CONFIG_FILE
-    cfg_replace_option ldap.synchronization.groupMemberAttributeName $LDAP_GROUP_MEMBER_ATTRIBUTENAME $LDAP_CONFIG_FILE
+    cfg_replace_option "ldap.authentication.userNameFormat" "$LDAP_CONFIG_FILE" "$LDAP_AUTH_USERNAMEFORMAT"
+    cfg_replace_option ldap.authentication.java.naming.provider.url $LDAP_CONFIG_FILE $LDAP_URL
+    cfg_replace_option ldap.authentication.defaultAdministratorUserNames $LDAP_CONFIG_FILE $LDAP_DEFAULT_ADMINS
+    cfg_replace_option ldap.synchronization.java.naming.security.principal $LDAP_CONFIG_FILE $LDAP_SECURITY_PRINCIPAL
+    cfg_replace_option ldap.synchronization.java.naming.security.credentials $LDAP_CONFIG_FILE $LDAP_SECURITY_CREDENTIALS
+    cfg_replace_option ldap.synchronization.groupSearchBase $LDAP_CONFIG_FILE $LDAP_GROUP_SEARCHBASE
+    cfg_replace_option ldap.synchronization.userSearchBase $LDAP_CONFIG_FILE $LDAP_USER_SEARCHBASE
+    cfg_replace_option ldap.synchronization.userIdAttributeName $LDAP_CONFIG_FILE $LDAP_USER_ATTRIBUTENAME
+    cfg_replace_option ldap.synchronization.groupMemberAttributeName $LDAP_CONFIG_FILE $LDAP_GROUP_MEMBER_ATTRIBUTENAME
   else
-    cfg_replace_option authentication.chain "alfrescoNtlm1:alfrescoNtlm" $ALFRESCO_GLOBAL_PROPERTIES
+    cfg_replace_option authentication.chain $ALFRESCO_GLOBAL_PROPERTIES "alfrescoNtlm1:alfrescoNtlm"
   fi
 
   # content store
-  cfg_replace_option dir.contentstore "${CONTENT_STORE}/contentstore" $ALFRESCO_GLOBAL_PROPERTIES
-  cfg_replace_option dir.contentstore.deleted "${CONTENT_STORE}/contentstore.deleted" $ALFRESCO_GLOBAL_PROPERTIES
+  cfg_replace_option dir.contentstore $ALFRESCO_GLOBAL_PROPERTIES "${CONTENT_STORE}/contentstore"
+  cfg_replace_option dir.contentstore.deleted $ALFRESCO_GLOBAL_PROPERTIES "${CONTENT_STORE}/contentstore.deleted"
 }
 
 tweak_alfresco
