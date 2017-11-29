@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # set correct timezone
-unalias cp
+unalias cp 2&>/dev/null
 cp -f /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # first check to see if alf_data has keystore directory, this is a crude way
