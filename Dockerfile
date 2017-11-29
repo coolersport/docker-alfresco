@@ -35,8 +35,8 @@ ENV ADMIN_PASSWORD adminPassw0rd
 
 COPY rootfs /
 
-RUN chmod u+x /tmp/*.sh && \
-    chmod 1777 /tmp && \
+RUN chmod 1777 /tmp && \
+    chmod u+x /tmp/*.sh && sleep 3 && \
 # install alfresco
     /tmp/install_alfresco.sh && \
 # install mysql connector for alfresco
