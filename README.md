@@ -19,22 +19,22 @@ Dockerfile to build an Alfresco container image.
 ## Contributing
 Here is how you can help:
 - Send a Pull Request with your awesome new features and bug fixes
-- Report [Issues](https://github.com/gui81/docker-alfresco/issues)
+- Report [Issues](https://github.com/coolersport/docker-alfresco/issues)
 
 ## Installation
 Pull the image from the docker index.
 ```bash
-docker pull gui81/alfresco:latest
+docker pull coolersport/alfresco:latest
 ```
 
 or pull a particular version:
 ```bash
-docker pull gui81/alfresco:201707
+docker pull coolersport/alfresco:201707
 ```
 
 Alternatively, you can build the image yourself:
 ```bash
-git clone https://github.com/gui81/docker-alfresco.git
+git clone https://github.com/coolersport/docker-alfresco.git
 cd docker-alfresco
 docker build --tag="$USER/alfresco" .
 ```
@@ -43,7 +43,7 @@ docker build --tag="$USER/alfresco" .
 Run the alfresco image with the name "alfresco".
 
 ```bash
-docker run --name='alfresco' -it --rm -p 8080:8080 gui81/alfresco
+docker run --name='alfresco' -it --rm -p 8080:8080 coolersport/alfresco
 ```
 
 **NOTE**: Please allow a few minutes for the application to start, especially if
@@ -82,7 +82,7 @@ docker run --name='alfresco' -it --rm -p 445:445 -p 7070:7070 -p 8080:8080 \
     -e 'DB_USERNAME=alfresco' \
     -e 'DB_PASSWORD=alfresco' \
     -e 'DB_NAME=alfresco' \
-    gui81/alfresco
+    coolersport/alfresco
 ```
 
 If you want to use this image in production, then please read on.
