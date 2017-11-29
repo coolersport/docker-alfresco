@@ -42,7 +42,7 @@ RUN chmod 1777 /tmp && \
 # install mysql connector for alfresco
     /tmp/install_mysql_connector.sh && \
 # this is for LDAP configuration
-    unalias cp 2&>/dev/null && \
+    unalias cp || true && \
     cp -r /alfresco-assets/* /alfresco/ && \
 # backup alf_data so that it can be used in init.sh if necessary
     rsync -av $ALF_DATA /alf_data.install/ && \
