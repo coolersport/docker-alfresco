@@ -51,7 +51,7 @@ RUN chmod 1777 /tmp && \
     chown -R alfresco:alfresco /alfresco && \
     chown -R alfresco:alfresco /alf_data.install && \
 # additional scripts
-    chmod +x /*.sh && \
+    chmod +x /*.sh /alfresco/*.sh && \
 # clean up
     rm -rf /tmp/* /var/tmp/* /alfresco-assets
 
