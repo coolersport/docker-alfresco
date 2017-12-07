@@ -23,15 +23,15 @@ RUN yum update -y && \
                    wget && \
     yum clean all && rm -rf /tmp/* /var/tmp/* /var/cache/yum/*
 
-ENV ALF_DATA /alfresco/alf_data
-ENV TZ Australia/Melbourne
+#LOG_LEVEL=debug,info,warn,error,critical
 
-#debug,info,warn,error,critical
-ENV LOG_LEVEL warn
-ENV BOOTSTRAP_DELAY 30
-ENV BOOTSTRAP_USER apiUser
-ENV BOOTSTRAP_PASSWORD somePassword
-ENV ADMIN_PASSWORD adminPassw0rd
+ENV ALF_DATA=/alfresco/alf_data \
+    TZ=Australia/Melbourne \
+    LOG_LEVEL=warn \
+    BOOTSTRAP_DELAY=30 \
+    BOOTSTRAP_USER=apiUser \
+    BOOTSTRAP_PASSWORD=somePassword \
+    ADMIN_PASSWORD=adminPassw0rd
 
 COPY rootfs /
 
