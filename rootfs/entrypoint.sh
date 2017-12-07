@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# set correct timezone
+unalias cp 2&>/dev/null
+cp -f /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 for f in /content /alfresco/alf_data /alfresco/tomcat/logs
 do
   if [ -d $f ] && [ "$( stat -c '%U:%G' $f )" != "alfresco:alfresco" ]
